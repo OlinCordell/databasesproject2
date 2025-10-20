@@ -20,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 import uga.menik.csx370.models.FollowableUser;
 import uga.menik.csx370.services.PeopleService;
 import uga.menik.csx370.services.UserService;
-import uga.menik.csx370.utility.Utility;
 
 /**
  * Handles /people URL and its sub URL paths.
@@ -32,6 +31,15 @@ public class PeopleController {
     // Inject UserService and PeopleService instances.
     // See LoginController.java to see how to do this.
     // Hint: Add a constructor with @Autowired annotation.
+
+    private final UserService userService;
+    private final PeopleService peopleService;
+
+    @Autowired
+    public PeopleController(UserService userService, PeopleService peopleService) {
+        this.userService = userService;
+        this.peopleService = peopleService;
+    }
 
     /**
      * Serves the /people web page.
@@ -45,23 +53,19 @@ public class PeopleController {
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("people_page");
 
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-        // Use the PeopleService instance to find followable users.
-        // Use UserService to access logged in userId to exclude.
-        List<FollowableUser> followableUsers = Utility.createSampleFollowableUserList();
-        mv.addObject("users", followableUsers);
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // An error message can be optionally specified with a url query parameter too.
-        String errorMessage = error;
-        mv.addObject("errorMessage", errorMessage);
-
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
-        
+        try {      
+            List<FollowableUser> followableUsers = peopleService.getFollowableUsers(
+                userService.getLoggedInUser().getUserId());   
+            if (followableUsers.isEmpty()) {
+                mv.addObject("isNoContent", true);
+            } else {
+                mv.addObject("users", followableUsers);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMessage = error;
+            mv.addObject("errorMessage", errorMessage);
+        }     
         return mv;
     }
 
@@ -82,13 +86,20 @@ public class PeopleController {
         System.out.println("\tuserId: " + userId);
         System.out.println("\tisFollow: " + isFollow);
 
-        // Redirect the user if the comment adding is a success.
-        // return "redirect:/people";
-
-        // Redirect the user with an error message if there was an error.
-        String message = URLEncoder.encode("Failed to (un)follow the user. Please try again.",
+        try {
+            String loggedInUserId = userService.getLoggedInUser().getUserId();
+            if (isFollow) {
+                peopleService.followUser(loggedInUserId, userId);
+            } else {
+                peopleService.unfollowUser(loggedInUserId, userId);
+            }
+            return "redirect:/people";
+        } catch (Exception e) {
+            e.printStackTrace();
+            String message = URLEncoder.encode("Failed to (un)follow the user. Please try again.",
                 StandardCharsets.UTF_8);
-        return "redirect:/people?error=" + message;
+            return "redirect:/people?error=" + message;
+        }
     }
 
 }
