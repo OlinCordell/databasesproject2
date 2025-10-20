@@ -125,14 +125,13 @@ public class PostController {
 
         try {
             if (isAdd) {
-                postService.addHeart(postId);
+                postService.addHeart(postId, userService.getLoggedInUser().getUserId());
             } else {
-                postService.removeHeart(postId);
+                postService.removeHeart(postId, userService.getLoggedInUser().getUserId());
             }
             return "redirect:/post/" + postId;
         } catch (Exception e) {
             e.printStackTrace();
-            // Redirect the user with an error message if there was an error.
             String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
                 StandardCharsets.UTF_8);
             return "redirect:/post/" + postId + "?error=" + message;
