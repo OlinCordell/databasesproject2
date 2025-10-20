@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.Post;
-import uga.menik.csx370.utility.Utility;
+import uga.menik.csx370.services.PostService;
+import uga.menik.csx370.services.UserService;
 
 /**
  * This controller handles the home page and some of it's sub URLs.
@@ -25,6 +27,15 @@ import uga.menik.csx370.utility.Utility;
 @Controller
 @RequestMapping
 public class HomeController {
+
+    private final PostService postService;
+    private final UserService userService;
+
+    @Autowired
+    public HomeController(PostService postService, UserService userService) {
+        this.postService = postService;
+        this.userService = userService;
+    }
 
     /**
      * This is the specific function that handles the root URL itself.
@@ -38,20 +49,18 @@ public class HomeController {
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("home_page");
 
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-        List<Post> posts = Utility.createSamplePostsListWithoutComments();
-        mv.addObject("posts", posts);
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // An error message can be optionally specified with a url query parameter too.
-        String errorMessage = error;
-        mv.addObject("errorMessage", errorMessage);
-
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
+        try {
+            String loggedInUserId = userService.getLoggedInUser().getUserId();
+            List<Post> posts = postService.getFollowedUsersPosts(loggedInUserId);
+            mv.addObject("posts", posts);
+            if (posts.isEmpty()) {
+                mv.addObject("isNoContent", true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMessage = error;
+            mv.addObject("errorMessage", errorMessage);
+        }
 
         return mv;
     }
@@ -66,15 +75,24 @@ public class HomeController {
      */
     @PostMapping("/createpost")
     public String createPost(@RequestParam(name = "posttext") String postText) {
-        System.out.println("User is creating post: " + postText);
-
-        // Redirect the user if the post creation is a success.
-        // return "redirect:/";
-
-        // Redirect the user with an error message if there was an error.
-        String message = URLEncoder.encode("Failed to create the post. Please try again.",
-                StandardCharsets.UTF_8);
-        return "redirect:/?error=" + message;
+        try {
+            System.out.println("User is creating post: " + postText);
+            String userId = userService.getLoggedInUser().getUserId();
+            boolean success = postService.createPost(userId, postText);
+            if (success) {
+                return "redirect:/"; // Redirect the user if the post creation is a success.
+            } else {
+                String message = URLEncoder.encode("Failed to create the post. Please try again.",
+                    StandardCharsets.UTF_8);
+                return "redirect:/?error=" + message;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Redirect the user with an error message if there was an error.
+            String message = URLEncoder.encode("Failed to create the post. Please try again.",
+                    StandardCharsets.UTF_8);
+            return "redirect:/?error=" + message;
+        }
     }
 
 }
