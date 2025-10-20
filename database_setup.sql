@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS hashtag {
 };
 
 -- Create the hashtag_post table (link hashtag to posts table)
-CREATE IF NOT EXISTS hashtag_post {
+CREATE TABLE IF NOT EXISTS hashtag_post {
     postId varchar(255) not null,
     hashtagId int not null,
     primary key (postId, hashtagId),
@@ -73,7 +73,7 @@ CREATE IF NOT EXISTS hashtag_post {
 };
 
 -- Create the like_post table (to track which user liked which post)
-CREATE IF NOT EXISTS like_post {
+CREATE TABLE IF NOT EXISTS like_post {
     userId int not null,
     postId varchar(255) not null,
     primary key (userId, postId),
@@ -82,7 +82,7 @@ CREATE IF NOT EXISTS like_post {
 };
 
 -- Create the like_post table (to track which user liked which post)
-CREATE IF NOT EXISTS bookmark {
+CREATE TABLE IF NOT EXISTS bookmark {
     userId int not null,
     postId varchar(255) not null,
     createdAt datetime not null default current_timestamp,
@@ -92,7 +92,7 @@ CREATE IF NOT EXISTS bookmark {
 };
 
 -- Create the non-trivial repost table 
-CREATE IF NOT EXISTS repost {
+CREATE TABLE IF NOT EXISTS repost {
     repostId int auto_increment,
     userId int not null,
     origPostId varchar(255) not null,
