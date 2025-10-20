@@ -10,9 +10,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.sql.DataSource;
 
@@ -107,10 +109,17 @@ public class PostService {
                             ? rs.getString("profileImagePath") : "/avatars/default.png"
                     );
 
+                    Timestamp ts = rs.getTimestamp("postDate");
+                    String formattedDate = "";
+                    if (ts != null) {
+                        formattedDate = new SimpleDateFormat("MMM dd, yyyy, hh:mm a")
+                                .format(new Date(ts.getTime()));
+                    }
+
                     Post post = new Post(
                         rs.getString("postId"),
                         rs.getString("content"),
-                        rs.getString("postDate"),
+                        formattedDate,
                         user,
                         rs.getInt("heartsCount"),
                         rs.getInt("commentsCount"),
@@ -125,27 +134,70 @@ public class PostService {
         return posts;
     }
 
-    public void addHeart(String postId) throws SQLException {
+    public void addHeart(String postId, String loggedInUserId) throws SQLException {
         final String sql = """
                 update post set heartsCount = heartsCount + 1, isHearted = TRUE where postId = ?
                 """;
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        
+        final String updateUserSql = """
+            update user set lastActiveDate = ? where userId = ?
+            """;
+        
+        try (Connection conn = dataSource.getConnection()) {
+        conn.setAutoCommit(false);
+        try (PreparedStatement pstmt = conn.prepareStatement(sql);
+             PreparedStatement updateStmt = conn.prepareStatement(updateUserSql)) {
+
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+
             pstmt.setString(1, postId);
             pstmt.executeUpdate();
+
+            updateStmt.setTimestamp(1, now);
+            updateStmt.setInt(2, Integer.parseInt(loggedInUserId));
+            updateStmt.executeUpdate();
+
+            conn.commit();
+        } catch (SQLException e) {
+            conn.rollback();
+            throw e;
+        } finally {
+            conn.setAutoCommit(true);
         }
     }
+    }
 
-    public void removeHeart(String postId) throws SQLException {
+    public void removeHeart(String postId, String loggedInUserId) throws SQLException {
         final String sql = """
                 update post set heartsCount = heartsCount - 1,
                     isHearted = case when heartsCount - 1 <= 0 then false else true end
                     where postId = ? and heartsCount > 0;
                 """;
-        try (Connection conn = dataSource.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, postId);
-            pstmt.executeUpdate();
+        final String updateUserSql = """
+            update user set lastActiveDate = ? where userId = ?
+            """;
+
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement pstmt = conn.prepareStatement(sql);
+                PreparedStatement updateStmt = conn.prepareStatement(updateUserSql)) {
+
+                Timestamp now = new Timestamp(System.currentTimeMillis());
+
+                pstmt.setString(1, postId);
+                pstmt.executeUpdate();
+
+                updateStmt.setTimestamp(1, now);
+                updateStmt.setInt(2, Integer.parseInt(loggedInUserId));
+                updateStmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
         }
     }
 
@@ -174,10 +226,17 @@ public class PostService {
 
                     List<Comment> comments = commentService.getCommentsByPost(postId);
 
+                    Timestamp ts = rs.getTimestamp("postDate");
+                    String formattedDate = "";
+                    if (ts != null) {
+                        formattedDate = new SimpleDateFormat("MMM dd, yyyy, hh:mm a")
+                                .format(new Date(ts.getTime()));
+                    }
+
                     return new ExpandedPost(
                         rs.getString("postId"),
                         rs.getString("content"),
-                        rs.getString("postDate"),
+                        formattedDate,
                         postUser,
                         rs.getInt("heartsCount"),
                         rs.getInt("commentsCount"),
@@ -193,3 +252,4 @@ public class PostService {
     }
 
 }
+
