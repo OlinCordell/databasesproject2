@@ -72,4 +72,33 @@ CREATE IF NOT EXISTS hashtag_post {
     constraint fk_link_hashtag foreign key (hashtagId) references hashtag(hashtagId) on delete cascade
 };
 
+-- Create the like_post table (to track which user liked which post)
+CREATE IF NOT EXISTS like_post {
+    userId int not null,
+    postId varchar(255) not null,
+    primary key (userId, postId),
+    constraint fk_link_user foreign key (userId) references post(userId) on delete cascade,
+    constraint fk_link_post foreign key (postId) references post(postId) on delete cascade
+};
+
+-- Create the like_post table (to track which user liked which post)
+CREATE IF NOT EXISTS bookmark {
+    userId int not null,
+    postId varchar(255) not null,
+    createdAt datetime not null default current_timestamp,
+    primary key (userId, postId),
+    constraint fk_link_user_bm foreign key (userId) references user(userId) on delete cascade,
+    constraint fk_link_post_bm foreign key (postId) references post(postId) on delete cascade
+};
+
+-- Create the non-trivial repost table 
+CREATE IF NOT EXISTS repost {
+    repostId int auto_increment,
+    userId int not null,
+    origPostId varchar(255) not null,
+    createdAt datetime not null default current_timestamp,
+    primary key (repostId),
+    foreign key (userId) references user(userId) on delete cascade,
+    foreign key (origPostId) references post(postId) on delete cascade
+};
 
