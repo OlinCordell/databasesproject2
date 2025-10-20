@@ -12,7 +12,7 @@ create table if not exists user (
     firstName varchar(255) not null,
     lastName varchar(255) not null,
     lastActiveDate datetime,
-    profileImagePath varchar(255),
+    profileImagePath varchar(255) default '/avatars/default.png',
     primary key (userId),
     unique (username),
     constraint userName_min_length check (char_length(trim(userName)) >= 2),
