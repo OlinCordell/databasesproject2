@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.ExpandedPost;
-import uga.menik.csx370.utility.Utility;
+import uga.menik.csx370.services.PostService;
+import uga.menik.csx370.services.UserService;
+import uga.menik.csx370.services.CommentService;
+
 
 /**
  * Handles /post URL and its sub urls.
@@ -26,6 +30,17 @@ import uga.menik.csx370.utility.Utility;
 @Controller
 @RequestMapping("/post")
 public class PostController {
+
+    private final UserService userService;
+    private final PostService postService;
+    private final CommentService commentService;
+
+    @Autowired
+    public PostController(UserService userService, PostService postService, CommentService commentService) {
+        this.userService = userService;
+        this.postService = postService;
+        this.commentService = commentService;
+    }
 
     /**
      * This function handles the /post/{postId} URL.
@@ -44,20 +59,18 @@ public class PostController {
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("posts_page");
 
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-        List<ExpandedPost> posts = Utility.createSampleExpandedPostWithComments();
-        mv.addObject("posts", posts);
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // An error message can be optionally specified with a url query parameter too.
-        String errorMessage = error;
-        mv.addObject("errorMessage", errorMessage);
-
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
+        try {
+            ExpandedPost post = postService.getPostById(postId);
+            if (post != null) {
+                mv.addObject("posts", List.of(post));
+            } else {
+                mv.addObject("isNoContent", true);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMessage = error;
+            mv.addObject("errorMessage", errorMessage);
+        }
 
         return mv;
     }
@@ -75,13 +88,26 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tcomment: " + comment);
 
-        // Redirect the user if the comment adding is a success.
-        // return "redirect:/post/" + postId;
+        try {
+            String userId = userService.getLoggedInUser().getUserId();
+            boolean success = commentService.addComment(postId, userId, comment);
 
-        // Redirect the user with an error message if there was an error.
-        String message = URLEncoder.encode("Failed to post the comment. Please try again.",
-                StandardCharsets.UTF_8);
-        return "redirect:/post/" + postId + "?error=" + message;
+            if (success) {
+                return "redirect:/post/" + postId;
+            } else {
+                String message = URLEncoder.encode("Failed to post the comment. Please try again.",
+                    StandardCharsets.UTF_8);
+                return "redirect:/post/" + postId + "?error=" + message;    
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            String message = URLEncoder.encode(
+                "Failed to post the comment. Please try again.",
+                StandardCharsets.UTF_8
+            );
+            return "redirect:/post/" + postId + "?error=" + message;
+        }
+        
     }
 
     /**
@@ -97,13 +123,22 @@ public class PostController {
         System.out.println("\tpostId: " + postId);
         System.out.println("\tisAdd: " + isAdd);
 
-        // Redirect the user if the comment adding is a success.
-        // return "redirect:/post/" + postId;
-
-        // Redirect the user with an error message if there was an error.
-        String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
+        try {
+            if (isAdd) {
+                postService.addHeart(postId);
+            } else {
+                postService.removeHeart(postId);
+            }
+            return "redirect:/post/" + postId;
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Redirect the user with an error message if there was an error.
+            String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
                 StandardCharsets.UTF_8);
-        return "redirect:/post/" + postId + "?error=" + message;
+            return "redirect:/post/" + postId + "?error=" + message;
+        }
+
+        
     }
 
     /**
