@@ -54,3 +54,22 @@ create table if not exists follows (
     foreign key (followsId) references user(userId) on delete cascade,
     foreign key (followedId) references user(userId) on delete cascade
 );
+
+-- Create the hashtag table
+CREATE TABLE IF NOT EXISTS hashtag {
+    hashtagId int auto_increment,
+    tag varchar(100) not null,
+    primary key (hashtagId),
+    unique (tag)
+};
+
+-- Create the hashtag_post table (link hashtag to posts table)
+CREATE IF NOT EXISTS hashtag_post {
+    postId varchar(255) not null,
+    hashtagId int not null,
+    primary key (postId, hashtagId),
+    constraint fk_link_post foreign key (postId) references post(postId) on delete cascade,
+    constraint fk_link_hashtag foreign key (hashtagId) references hashtag(hashtagId) on delete cascade
+};
+
+
