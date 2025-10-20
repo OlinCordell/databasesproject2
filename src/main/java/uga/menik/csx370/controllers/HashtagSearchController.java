@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.Post;
-import uga.menik.csx370.utility.Utility;
+import uga.menik.csx370.services.HashtagService;
+import uga.menik.csx370.services.UserService;
 
 /**
  * Handles /hashtagsearch URL and possibly others.
@@ -23,6 +24,14 @@ import uga.menik.csx370.utility.Utility;
 @Controller
 @RequestMapping("/hashtagsearch")
 public class HashtagSearchController {
+
+    private final HashtagService hashtagService;
+    private final UserService userService;
+
+    public HashtagSearchController(HashtagService hashtagService, UserService userService) {
+        this.hashtagService = hashtagService;
+        this.userService = userService;
+    }
 
     /**
      * This function handles the /hashtagsearch URL itself.
@@ -35,22 +44,23 @@ public class HashtagSearchController {
     public ModelAndView webpage(@RequestParam(name = "hashtags") String hashtags) {
         System.out.println("User is searching: " + hashtags);
 
-        // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("posts_page");
 
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-        List<Post> posts = Utility.createSamplePostsListWithoutComments();
-        mv.addObject("posts", posts);
-
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // String errorMessage = "Some error occured!";
-        // mv.addObject("errorMessage", errorMessage);
-
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
+        try {
+            
+            String[] tags = hashtags.trim().split("[ ,]");
+            List<Post> posts = hashtagService.getPostsByHashtags(tags, userService.getLoggedInUser().getUserId());
+            
+            if (posts.isEmpty()) {
+                mv.addObject("isNoContent", true);
+            } else {
+                mv.addObject("posts", posts);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            String errorMessage = "Some error occured!";
+            mv.addObject("errorMessage", errorMessage);
+        }
         
         return mv;
     }
