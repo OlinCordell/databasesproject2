@@ -9,6 +9,11 @@ This is a project developed by Dr. Menik to give the students an opportunity to 
         <form action="/hashtagsearch" method="get">
             <input name="hashtags" class="short-input" type="text" placeholder="Search hashtags">
         </form>
+        <a href="/profile/select-avatar" title="Change Avatar">
+            <img src="{{loggedInUser.profileImagePath}}" 
+                alt="Profile" 
+                class="avatar-icon" />
+        </a>
     </div>
 </div>
 <div class="separator-bottom">
