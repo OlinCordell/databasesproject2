@@ -105,8 +105,7 @@ public class PostService {
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName"),
-                        rs.getString("profileImagePath") != null 
-                            ? rs.getString("profileImagePath") : "/avatars/default.png"
+                        rs.getString("profileImagePath")
                     );
 
                     Timestamp ts = rs.getTimestamp("postDate");
@@ -134,61 +133,65 @@ public class PostService {
         return posts;
     }
 
-    public void addHeart(String postId, String loggedInUserId) throws SQLException {
-        final String sql = """
-                update post set heartsCount = heartsCount + 1, isHearted = TRUE where postId = ?
-                """;
-        
-        final String updateUserSql = """
-            update user set lastActiveDate = ? where userId = ?
-            """;
-        
-        try (Connection conn = dataSource.getConnection()) {
-        conn.setAutoCommit(false);
-        try (PreparedStatement pstmt = conn.prepareStatement(sql);
-             PreparedStatement updateStmt = conn.prepareStatement(updateUserSql)) {
+    public void addHeart(String postId, String userId) throws SQLException {
+        String insertLikeSql = """
+            INSERT IGNORE INTO like_post (userId, postId)
+            VALUES (?, ?)
+        """;
 
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-
-            pstmt.setString(1, postId);
-            pstmt.executeUpdate();
-
-            updateStmt.setTimestamp(1, now);
-            updateStmt.setInt(2, Integer.parseInt(loggedInUserId));
-            updateStmt.executeUpdate();
-
-            conn.commit();
-        } catch (SQLException e) {
-            conn.rollback();
-            throw e;
-        } finally {
-            conn.setAutoCommit(true);
-        }
-    }
-    }
-
-    public void removeHeart(String postId, String loggedInUserId) throws SQLException {
-        final String sql = """
-                update post set heartsCount = heartsCount - 1,
-                    isHearted = case when heartsCount - 1 <= 0 then false else true end
-                    where postId = ? and heartsCount > 0;
-                """;
-        final String updateUserSql = """
-            update user set lastActiveDate = ? where userId = ?
-            """;
+        String updateCountSql = """
+            UPDATE post
+            SET heartsCount = (SELECT COUNT(*) FROM like_post WHERE postId = ?)
+            WHERE postId = ?
+        """;
 
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
-            try (PreparedStatement pstmt = conn.prepareStatement(sql);
-                PreparedStatement updateStmt = conn.prepareStatement(updateUserSql)) {
 
-                Timestamp now = new Timestamp(System.currentTimeMillis());
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertLikeSql);
+                PreparedStatement updateStmt = conn.prepareStatement(updateCountSql)) {
 
-                pstmt.setString(1, postId);
-                pstmt.executeUpdate();
+                insertStmt.setInt(1, Integer.parseInt(userId));
+                insertStmt.setString(2, postId);
+                insertStmt.executeUpdate();
 
-                updateStmt.setTimestamp(1, now);
-                updateStmt.setInt(2, Integer.parseInt(loggedInUserId));
+                updateStmt.setString(1, postId);
+                updateStmt.setString(2, postId);
+                updateStmt.executeUpdate();
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    public void removeHeart(String postId, String userId) throws SQLException {
+        String deleteLikeSql = """
+            DELETE FROM like_post WHERE userId = ? AND postId = ?
+        """;
+
+        String updateCountSql = """
+            UPDATE post
+            SET heartsCount = (SELECT COUNT(*) FROM like_post WHERE postId = ?)
+            WHERE postId = ?
+        """;
+
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement deleteStmt = conn.prepareStatement(deleteLikeSql);
+             PreparedStatement updateStmt = conn.prepareStatement(updateCountSql)) {
+
+                deleteStmt.setInt(1, Integer.parseInt(userId));
+                deleteStmt.setString(2, postId);
+                deleteStmt.executeUpdate();
+
+                updateStmt.setString(1, postId);
+                updateStmt.setString(2, postId);
                 updateStmt.executeUpdate();
 
                 conn.commit();
@@ -220,8 +223,7 @@ public class PostService {
                         rs.getString("userId"),
                         rs.getString("firstName"),
                         rs.getString("lastName"),
-                        rs.getString("profileImagePath") != null 
-                            ? rs.getString("profileImagePath") : "/avatars/default.png"
+                        rs.getString("profileImagePath")
                     );
 
                     List<Comment> comments = commentService.getCommentsByPost(postId);
@@ -251,5 +253,56 @@ public class PostService {
         }
     }
 
-}
+    public List<ExpandedPost> getPostsById(String userId) throws SQLException {
+        final String sql = """
+            select *
+            from post p
+            join user u on p.user = u.userId
+            where p.user = ?
+            order by p.postDate desc
+        """;
 
+        List<ExpandedPost> posts = new ArrayList<>();
+
+        try (Connection conn = dataSource.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, userId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    User postUser = new User(
+                        rs.getString("userId"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName"),
+                        rs.getString("profileImagePath")
+                    );
+
+                    List<Comment> comments = commentService.getCommentsByPost(rs.getString("postId"));
+
+                    Timestamp ts = rs.getTimestamp("postDate");
+                    String formattedDate = "";
+                    if (ts != null) {
+                        formattedDate = new SimpleDateFormat("MMM dd, yyyy, hh:mm a")
+                            .format(new Date(ts.getTime()));
+                    }
+
+                    posts.add(new ExpandedPost(
+                        rs.getString("postId"),
+                        rs.getString("content"),
+                        formattedDate,
+                        postUser,
+                        rs.getInt("heartsCount"),
+                        rs.getInt("commentsCount"),
+                        rs.getBoolean("isHearted"),
+                        rs.getBoolean("isBookmarked"),
+                        comments
+                    ));
+                }
+            }
+        }
+
+        return posts;
+    }
+
+}
