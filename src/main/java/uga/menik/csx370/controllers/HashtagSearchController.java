@@ -15,7 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.Post;
 import uga.menik.csx370.services.HashtagService;
-import uga.menik.csx370.services.UserService;
+import uga.menik.csx370.services.UserService;;
 
 /**
  * Handles /hashtagsearch URL and possibly others.
@@ -44,7 +44,10 @@ public class HashtagSearchController {
     public ModelAndView webpage(@RequestParam(name = "hashtags") String hashtags) {
         System.out.println("User is searching: " + hashtags);
 
+        // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("posts_page");
+        mv.addObject("loggedInUser", userService.getLoggedInUser());
+
 
         try {
             
@@ -66,3 +69,4 @@ public class HashtagSearchController {
     }
     
 }
+
