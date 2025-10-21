@@ -12,10 +12,10 @@ create table if not exists user (
     firstName varchar(255) not null,
     lastName varchar(255) not null,
     lastActiveDate datetime,
-    profileImagePath varchar(255) default '/avatars/default.png',
+    profileImagePath varchar(255) default '/avatars/avatar_1.png',
     primary key (userId),
     unique (username),
-    constraint userName_min_length check (char_length(trim(userName)) >= 2),
+    constraint username_min_length check (char_length(trim(username)) >= 2),
     constraint firstName_min_length check (char_length(trim(firstName)) >= 2),
     constraint lastName_min_length check (char_length(trim(lastName)) >= 2)
 );
@@ -31,7 +31,7 @@ create table if not exists post (
     isHearted boolean not null default FALSE,
     isBookmarked boolean not null default FALSE,
     primary key (postId),
-    foreign key (user) references user(userId)
+    foreign key (`user`) references `user`(userId) on delete cascade
 );
 
 -- Create the comment table
@@ -42,8 +42,8 @@ create table if not exists comment (
     postDate datetime not null,
     userId int not null,
     primary key (commentId),
-    foreign key (postId) references post(postId),
-    foreign key (userId) references user(userId)
+    foreign key (postId) references post(postId) on delete cascade,
+    foreign key (userId) references user(userId) on delete cascade
 );
 
 -- Create the follows table
@@ -56,49 +56,38 @@ create table if not exists follows (
 );
 
 -- Create the hashtag table
-CREATE TABLE IF NOT EXISTS hashtag {
+CREATE TABLE IF NOT EXISTS hashtag (
     hashtagId int auto_increment,
     tag varchar(100) not null,
     primary key (hashtagId),
     unique (tag)
-};
+);
 
 -- Create the hashtag_post table (link hashtag to posts table)
-CREATE TABLE IF NOT EXISTS hashtag_post {
+CREATE TABLE IF NOT EXISTS hashtag_post (
     postId varchar(255) not null,
     hashtagId int not null,
     primary key (postId, hashtagId),
-    constraint fk_link_post foreign key (postId) references post(postId) on delete cascade,
-    constraint fk_link_hashtag foreign key (hashtagId) references hashtag(hashtagId) on delete cascade
-};
+    foreign key (postId) references post(postId) on delete cascade,
+    foreign key (hashtagId) references hashtag(hashtagId) on delete cascade
+);
 
 -- Create the like_post table (to track which user liked which post)
-CREATE TABLE IF NOT EXISTS like_post {
+CREATE TABLE IF NOT EXISTS like_post (
     userId int not null,
     postId varchar(255) not null,
     primary key (userId, postId),
-    constraint fk_link_user foreign key (userId) references post(userId) on delete cascade,
-    constraint fk_link_post foreign key (postId) references post(postId) on delete cascade
-};
-
--- Create the like_post table (to track which user liked which post)
-CREATE TABLE IF NOT EXISTS bookmark {
-    userId int not null,
-    postId varchar(255) not null,
-    createdAt datetime not null default current_timestamp,
-    primary key (userId, postId),
-    constraint fk_link_user_bm foreign key (userId) references user(userId) on delete cascade,
-    constraint fk_link_post_bm foreign key (postId) references post(postId) on delete cascade
-};
-
--- Create the non-trivial repost table 
-CREATE TABLE IF NOT EXISTS repost {
-    repostId int auto_increment,
-    userId int not null,
-    origPostId varchar(255) not null,
-    createdAt datetime not null default current_timestamp,
-    primary key (repostId),
     foreign key (userId) references user(userId) on delete cascade,
-    foreign key (origPostId) references post(postId) on delete cascade
-};
+    foreign key (postId) references post(postId) on delete cascade
+);
+
+-- Create the like_post table (to track which user liked which post)
+CREATE TABLE IF NOT EXISTS bookmark (
+    userId int not null,
+    postId varchar(255) not null,
+    createdAt datetime not null default current_timestamp,
+    primary key (userId, postId),
+    foreign key (userId) references user(userId) on delete cascade,
+    foreign key (postId) references post(postId) on delete cascade
+);
 
