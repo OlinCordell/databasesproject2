@@ -17,6 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.services.PostService;
+import uga.menik.csx370.models.User;
 
 /**
  * Handles /profile URL and its sub URLs.
@@ -61,6 +62,8 @@ public class ProfileController {
         
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("posts_page");
+        mv.addObject("loggedInUser", userService.getLoggedInUser());
+
 
         try {
             List<ExpandedPost> posts = postService.getPostsById(userId);
