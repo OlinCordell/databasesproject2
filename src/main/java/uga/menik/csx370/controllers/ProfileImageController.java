@@ -26,6 +26,7 @@ public class ProfileImageController {
     @GetMapping("/profile/select-avatar")
     public ModelAndView selectAvatarPage() {
         ModelAndView mv = new ModelAndView("select_avatar");
+        mv.addObject("loggedInUser", userService.getLoggedInUser());
         
         List<String> avatars = new ArrayList<>();
         for (int i = 1; i <= 20; i++) { 

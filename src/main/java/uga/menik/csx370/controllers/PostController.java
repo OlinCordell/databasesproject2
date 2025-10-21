@@ -58,6 +58,8 @@ public class PostController {
         System.out.println("The user is attempting to view post with id: " + postId);
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("posts_page");
+        mv.addObject("loggedInUser", userService.getLoggedInUser());
+
 
         try {
             ExpandedPost post = postService.getPostById(postId);
@@ -135,9 +137,7 @@ public class PostController {
             String message = URLEncoder.encode("Failed to (un)like the post. Please try again.",
                 StandardCharsets.UTF_8);
             return "redirect:/post/" + postId + "?error=" + message;
-        }
-
-        
+        }    
     }
 
     /**

@@ -7,6 +7,7 @@ package uga.menik.csx370.services;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 import javax.sql.DataSource;
 
@@ -53,7 +56,7 @@ public class PeopleService {
                             from user u
                             left join follows f on u.userId = f.followedId and f.followsId = ?
                             where u.userId <> ?
-                            """;
+                        """;
 
         List<FollowableUser> followableUsers = new ArrayList<>();
        
@@ -70,8 +73,13 @@ public class PeopleService {
                     String firstName = rs.getString("firstName");
                     String lastName = rs.getString("lastName");
                     boolean isFollowed = rs.getBoolean("isFollowed");
-                    String lastActiveDate = rs.getString("lastActiveDate");
-                    if (lastActiveDate == null) {
+
+                    Timestamp ts = rs.getTimestamp("lastActiveDate");
+                    String lastActiveDate = "";
+                    if (ts != null) {
+                        lastActiveDate = new SimpleDateFormat("MMM dd, yyyy, hh:mm a")
+                                .format(new Date(ts.getTime()));
+                    } else {
                         lastActiveDate = "N/A";
                     }
 
@@ -89,32 +97,15 @@ public class PeopleService {
 
     public void followUser(String followsId, String followedId) throws SQLException {
         final String sql = """
-                insert into follows (followsId, followedId) values (?, ?)
+            INSERT INTO follows (followsId, followedId)
+            VALUES (?, ?)
         """;
-        final String updateSql  = """
-                UPDATE user
-                SET lastActive = CURRENT_TIMESTAMP
-                WHERE userId = ?
-        """;
-        try (Connection conn = dataSource.getConnection()) {
-            conn.setAutoCommit(false);
 
-            try  (PreparedStatement pstmt = conn.prepareStatement(sql);
-                PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
-                    pstmt.setString(1, followsId);
-                    pstmt.setString(2, followedId);
-                    pstmt.executeUpdate();
-
-                    updateStmt.setString(1, followsId);
-                    updateStmt.executeUpdate();
-
-                    conn.commit();
-            } catch (Exception e) {
-                conn.rollback();
-                throw e;
-            } finally {
-                conn.setAutoCommit(true);
-            }
+        try (Connection conn = dataSource.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, Integer.parseInt(followsId));
+            pstmt.setInt(2, Integer.parseInt(followedId));
+            pstmt.executeUpdate();
         }
     }
 
@@ -124,33 +115,10 @@ public class PeopleService {
             WHERE followsId = ? AND followedId = ?
         """;
 
-        final String updateSql = """
-            UPDATE user
-            SET lastActive = CURRENT_TIMESTAMP
-            WHERE userId = ?
-        """;
-
-        try (Connection conn = dataSource.getConnection()) {
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement stmt = conn.prepareStatement(sql);
-                PreparedStatement updateStmt = conn.prepareStatement(updateSql)
-            ) {
-                stmt.setString(1, followsId);
-                stmt.setString(2, followedId);
-                stmt.executeUpdate();
-
-                updateStmt.setString(1, followsId);
-                updateStmt.executeUpdate();
-
-                conn.commit();
-            } catch (Exception e) {
-                conn.rollback();
-                throw e;
-            } finally {
-                conn.setAutoCommit(true);
-            }
+        try (Connection conn = dataSource.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, Integer.parseInt(followsId));
+            stmt.setInt(2, Integer.parseInt(followedId));
+            stmt.executeUpdate();
         }
     }
-
-}

@@ -48,11 +48,14 @@ public class HomeController {
     public ModelAndView webpage(@RequestParam(name = "error", required = false) String error) {
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("home_page");
+        mv.addObject("loggedInUser", userService.getLoggedInUser());
+
 
         try {
             String loggedInUserId = userService.getLoggedInUser().getUserId();
             List<Post> posts = postService.getFollowedUsersPosts(loggedInUserId);
             mv.addObject("posts", posts);
+            
             if (posts.isEmpty()) {
                 mv.addObject("isNoContent", true);
             }

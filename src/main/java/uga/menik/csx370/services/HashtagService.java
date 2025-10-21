@@ -63,9 +63,7 @@ public class HashtagService {
                             rs.getString("userId"),
                             rs.getString("firstName"),
                             rs.getString("lastName"),
-                            rs.getString("profileImagePath") != null
-                                    ? rs.getString("profileImagePath")
-                                    : "/avatars/default.png"
+                            rs.getString("profileImagePath")
                     );
 
                     Post post = new Post(

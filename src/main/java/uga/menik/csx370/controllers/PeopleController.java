@@ -52,6 +52,8 @@ public class PeopleController {
     public ModelAndView webpage(@RequestParam(name = "error", required = false) String error) {
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("people_page");
+        mv.addObject("loggedInUser", userService.getLoggedInUser());
+
 
         try {      
             List<FollowableUser> followableUsers = peopleService.getFollowableUsers(
