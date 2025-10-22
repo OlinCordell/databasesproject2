@@ -164,21 +164,9 @@ public class PostController {
 
     @PostMapping("/delete/{postId}")
     public String deletePost(@PathVariable("postId") String postId) {
-        System.out.println("User is attempting to delete post: " + postId);
-        
-        try {
-            String userId = userService.getLoggedInUser().getUserId();
-            boolean deleted = postService.deletePost(postId, userId);
-            
-            if (!deleted) {
-                System.out.println("Failed to delete post - either doesn't exist or user doesn't own it");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error deleting post: " + e.getMessage());
-        }
-        
-        // Redirect back to profile
+        String userId = userService.getLoggedInUser().getUserId();
+        boolean deleted = postService.deletePost(postId, userId);
+
         return "redirect:/profile";
     }
 
