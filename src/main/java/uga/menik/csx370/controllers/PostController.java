@@ -7,6 +7,7 @@ package uga.menik.csx370.controllers;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,9 +165,17 @@ public class PostController {
 
     @PostMapping("/delete/{postId}")
     public String deletePost(@PathVariable("postId") String postId) {
-        String userId = userService.getLoggedInUser().getUserId();
-        boolean deleted = postService.deletePost(postId, userId);
-
+        try {
+            String userId = userService.getLoggedInUser().getUserId();
+            boolean deleted = postService.deletePost(postId, userId);
+            
+            if (!deleted) {
+                System.out.println("Failed to delete post");
+            }
+        } catch (SQLException e) { 
+            e.printStackTrace();
+            System.out.println("Error deleting post: " + e.getMessage());
+        }
         return "redirect:/profile";
     }
 
