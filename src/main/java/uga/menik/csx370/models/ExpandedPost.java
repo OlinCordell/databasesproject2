@@ -17,6 +17,7 @@ public class ExpandedPost extends Post {
      * A list of comments associated with the post.
      */
     private final List<Comment> comments;
+    private boolean isProfilePage;
 
     /**
      * Constructs an ExpandedPost with specified details including a list of comments.
@@ -44,5 +45,12 @@ public class ExpandedPost extends Post {
      */
     public List<Comment> getComments() {
         return List.copyOf(comments);
+    }
+    public boolean isProfilePage() {
+        return isProfilePage;
+    }
+
+    public void setProfilePage(boolean isProfilePage) {
+        this.isProfilePage = isProfilePage;
     }
 }

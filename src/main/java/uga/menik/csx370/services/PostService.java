@@ -305,4 +305,20 @@ public class PostService {
         return posts;
     }
 
+
+    /**
+     * Deletes a post
+     */
+    public boolean deletePost(String postId, String userId) throws SQLException {
+        final String sql = """
+            DELETE FROM post WHERE postId = ? AND user = ?
+        """;
+
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, postId);
+            stmt.setInt(2, Integer.parseInt(userId));
+            return stmt.executeUpdate() > 0;
+        }
+}
 }

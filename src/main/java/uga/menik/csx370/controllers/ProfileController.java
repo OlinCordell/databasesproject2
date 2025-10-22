@@ -63,13 +63,16 @@ public class ProfileController {
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("posts_page");
         mv.addObject("loggedInUser", userService.getLoggedInUser());
-
+        mv.addObject("pageTitle", "Profile");
 
         try {
             List<ExpandedPost> posts = postService.getPostsById(userId);
             if (posts.isEmpty()) {
                 mv.addObject("isNoContent", true);
             } else {
+                for (ExpandedPost post : posts) {
+                    post.setProfilePage(true);
+                }
                 mv.addObject("posts", posts);
             }
         } catch (Exception e) {
