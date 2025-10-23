@@ -74,15 +74,25 @@ public class UserService {
                         String userId = rs.getString("userId");
                         String firstName = rs.getString("firstName");
                         String lastName = rs.getString("lastName");
+                        String profileImagePath = rs.getString("profileImagePath");
+
+                        if (profileImagePath == null || profileImagePath.isEmpty()) {
+                            profileImagePath = getDefaultAvatar(userId);
+                        }
 
                         // Initialize and retain the logged in user.
-                        loggedInUser = new User(userId, firstName, lastName);
+                        loggedInUser = new User(userId, firstName, lastName, profileImagePath);
                     }
                     return isPassMatch;
                 }
             }
         }
         return false;
+    }
+
+    private String getDefaultAvatar(String userId) {
+        int fileNo = (userId.hashCode() % 20) + 1;
+        return "/avatars/avatar_" + fileNo + ".png";
     }
 
     /**
@@ -104,6 +114,10 @@ public class UserService {
      */
     public User getLoggedInUser() {
         return loggedInUser;
+    }
+
+    public void setLoggedInUser(User user) {
+        this.loggedInUser = user;
     }
 
     /**
