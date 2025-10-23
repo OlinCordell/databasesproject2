@@ -7,50 +7,41 @@ package uga.menik.csx370.controllers;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import uga.menik.csx370.models.Post;
-import uga.menik.csx370.utility.Utility;
+import uga.menik.csx370.services.BookmarkService;
 
-/**
- * Handles /bookmarks and its sub URLs.
- * No other URLs at this point.
- * 
- * Learn more about @Controller here: 
- * https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller.html
- */
 @Controller
 @RequestMapping("/bookmarks")
 public class BookmarksController {
 
-    /**
-     * /bookmarks URL itself is handled by this.
-     */
+    private final BookmarkService bookmarkService;
+
+    public BookmarksController(BookmarkService bookmarkService) {
+        this.bookmarkService = bookmarkService;
+    }
+
     @GetMapping
-    public ModelAndView webpage() {
-        // posts_page is a mustache template from src/main/resources/templates.
-        // ModelAndView class enables initializing one and populating placeholders
-        // in the template using Java objects assigned to named properties.
+    public ModelAndView webpage(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView("posts_page");
 
-        // Following line populates sample data.
-        // You should replace it with actual data from the database.
-        List<Post> posts = Utility.createSamplePostsListWithoutComments();
+        int userId = Auth.currentUserId(request); // <- swap this for your project’s auth helper
+
+        List<Post> posts = bookmarkService.getBookmarkedPosts(userId);
         mv.addObject("posts", posts);
 
-        // If an error occured, you can set the following property with the
-        // error message to show the error message to the user.
-        // String errorMessage = "Some error occured!";
-        // mv.addObject("errorMessage", errorMessage);
+        if (posts.isEmpty()) {
+            mv.addObject("isNoContent", true);
+        }
 
-        // Enable the following line if you want to show no content message.
-        // Do that if your content list is empty.
-        // mv.addObject("isNoContent", true);
+        // Optional: page title/banner
+        mv.addObject("pageTitle", "Bookmarks");
 
         return mv;
     }
-    
 }
