@@ -1,40 +1,37 @@
-package uga.menik.csx370.repositories;
-
+package uga.menik.csx370.repo;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
 import uga.menik.csx370.models.Post;
 
 @Repository
-public class BookmarkRepository {
+public class BookmarkRepo {
 
     private final JdbcTemplate jdbc;
 
-    public BookmarkRepository(JdbcTemplate jdbcTemplate) {
+    public BookmarkRepo(JdbcTemplate jdbcTemplate) {
         this.jdbc = jdbcTemplate;
-    }
+    } //BookmarkRepo
 
-    public int addBookmark(int userId, String postId) {
+    public int addBM(int userId, String postId) {
         String sql = "INSERT IGNORE INTO bookmark (userId, postId) VALUES (?, ?)";
         return jdbc.update(sql, userId, postId);
-    }
+    } // addBM
 
-    public int removeBookmark(int userId, String postId) {
+    public int removeBM(int userId, String postId) {
         String sql = "DELETE FROM bookmark WHERE userId = ? AND postId = ?";
         return jdbc.update(sql, userId, postId);
-    }
+    } // removeBM
 
-    public boolean isBookmarked(int userId, String postId) {
+    public boolean isBM(int userId, String postId) {
         String sql = "SELECT 1 FROM bookmark WHERE userId = ? AND postId = ? LIMIT 1";
         List<Integer> rows = jdbc.query(sql, (rs, i) -> rs.getInt(1), userId, postId);
         return !rows.isEmpty();
-    }
+    } // isBM
 
-    public List<Post> findAllBookmarkedPosts(int userId) {
+    public List<Post> findAllBMs(int userId) {
         String sql = """
             SELECT
                 p.postId,
@@ -53,20 +50,20 @@ public class BookmarkRepository {
             ORDER BY p.postDate DESC
             """;
         return jdbc.query(sql, (rs, i) -> mapPost(rs, userId), userId);
-    }
+    } // findAllBMs
 
     private Post mapPost(ResultSet rs, int currentUserId) throws SQLException {
         Post p = new Post();
         p.setPostId(rs.getString("postId"));
         p.setContent(rs.getString("content"));
-        p.setPostDate(rs.getTimestamp("postDate").toInstant()); // adapt to your model’s type
+        p.setPostDate(rs.getTimestamp("postDate").toInstant()); 
         p.setUserId(rs.getInt("authorId"));
         p.setHeartsCount(rs.getInt("heartsCount"));
         p.setCommentsCount(rs.getInt("commentsCount"));
-        p.setUsername(rs.getString("username"));     // if your Post has these fields
+        p.setUsername(rs.getString("username"));    
         p.setFirstName(rs.getString("firstName"));
         p.setLastName(rs.getString("lastName"));
-        p.setBookmarked(true); // since we're querying from the bookmark table
+        p.setBookmarked(true);
         return p;
-    }
-}
+    } // mapPost
+} // BookmarkRepo
