@@ -19,14 +19,13 @@ public class ProfileImageService {
     }
     
     /**
-     * Extra feature implemented by Olin.
      * Update user's profile image path.
      * @param userId
      * @param profileImagePath
      * @throws SQLException
      */
     public void updateProfileImage(String userId, String profileImagePath) throws SQLException {
-        final String sql = "update user set profileImagePath = ? where userId = ?";
+        final String sql = "update `user` set profileImagePath = ? where userId = ?";
         try (Connection conn = dataSource.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setString(1, profileImagePath);
