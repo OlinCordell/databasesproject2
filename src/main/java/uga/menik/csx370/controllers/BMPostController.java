@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import uga.menik.csx370.services.BookmarkService;
 
 @Controller
@@ -15,18 +14,13 @@ public class BMPostController {
 
     public BMPostController(BookmarkService bookmarkService) {
         this.bookmarkService = bookmarkService;
-    }
+    } // BMPostController
 
     @PostMapping("/{postId}/bookmark")
     @ResponseBody
-    public ResponseEntity<?> ctrlBookmark(
-            @PathVariable String postId,
-            HttpServletRequest request) {
-
+    public ResponseEntity<?> ctrlBookmark(String postId, HttpServletRequest request) {
         int userId = Auth.currentUserId(request); 
-
         boolean nowBookmarked = bookmarkService.ctrlBookmark(userId, postId);
-
         return ResponseEntity.ok().body("{\"bookmarked\": " + nowBookmarked + "}");
-    }
-}
+    } // ctrlBookmark
+} // BMPostController
