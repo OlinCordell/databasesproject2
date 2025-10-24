@@ -17,14 +17,14 @@ public class BookmarkService {
         this.repo = repo;
     } // BookmarkService 
 
-    public List<Post> getBookmarkedPosts(int userId) {
+    public List<Post> getBookmarkedPosts(String userId) {
         return repo.findAllBMs(userId);
     } // getBookmarkedPosts
 
     @Transactional
-    public boolean ctrlBookmark(int userId, String postId) {
+    public boolean ctrlBookmark(String userId, String postId) {
         boolean already = repo.isBM(userId, postId);
-        if (already) {
+        if (isBookmarked) {
             repo.removeBM(userId, postId);
             return false;
         } else {
@@ -33,7 +33,8 @@ public class BookmarkService {
         } // if else
     } // ctrlBookmark
 
-    public boolean isBookmarked(int userId, String postId) {
+    public boolean isBookmarked(String userId, String postId) {
         return repo.isBM(userId, postId);
     } // isBookmarked
+    
 } // BookmarkService
