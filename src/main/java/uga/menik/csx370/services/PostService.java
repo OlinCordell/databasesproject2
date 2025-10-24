@@ -204,9 +204,11 @@ public class PostService {
         }
     }
 
-    public ExpandedPost getPostById(String postId) throws SQLException {
+    public ExpandedPost getPostById(String postId, String currentUserId) throws SQLException {
         final String sql = """
-                select *
+                select p.*, u.*,
+                   EXISTS(SELECT 1 FROM like_post WHERE postId = p.postId AND userId = ?) as isHearted,
+                   EXISTS(SELECT 1 FROM bookmark WHERE postId = p.postId AND userId = ?) as isBookmarked
                 from post p
                 join user u on p.user = u.userId
                 where p.postId = ?
@@ -214,7 +216,9 @@ public class PostService {
         try (Connection conn = dataSource.getConnection();
          PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        pstmt.setString(1, postId);
+            pstmt.setInt(1, Integer.parseInt(currentUserId));
+            pstmt.setInt(2, Integer.parseInt(currentUserId));
+            pstmt.setString(3, postId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {

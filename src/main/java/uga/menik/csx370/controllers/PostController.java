@@ -23,7 +23,7 @@ import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.services.PostService;
 import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.services.CommentService;
-
+import uga.menik.csx370.services.BookmarkService;
 
 /**
  * Handles /post URL and its sub urls.
@@ -35,12 +35,14 @@ public class PostController {
     private final UserService userService;
     private final PostService postService;
     private final CommentService commentService;
+    private final BookmarkService bookmarkService;
 
     @Autowired
-    public PostController(UserService userService, PostService postService, CommentService commentService) {
+    public PostController(UserService userService, PostService postService, CommentService commentService, BookmarkService bookmarkService) {
         this.userService = userService;
         this.postService = postService;
         this.commentService = commentService;
+        this.bookmarkService = bookmarkService;
     }
 
     /**
@@ -60,10 +62,10 @@ public class PostController {
         // See notes on ModelAndView in BookmarksController.java.
         ModelAndView mv = new ModelAndView("posts_page");
         mv.addObject("loggedInUser", userService.getLoggedInUser());
-
+        String currentUserId = userService.getLoggedInUser().getUserId();
 
         try {
-            ExpandedPost post = postService.getPostById(postId);
+            ExpandedPost post = postService.getPostById(postId, currentUserId);
             if (post != null) {
                 mv.addObject("posts", List.of(post));
             } else {
@@ -158,9 +160,23 @@ public class PostController {
         // return "redirect:/post/" + postId;
 
         // Redirect the user with an error message if there was an error.
-        String message = URLEncoder.encode("Failed to (un)bookmark the post. Please try again.",
-                StandardCharsets.UTF_8);
-        return "redirect:/post/" + postId + "?error=" + message;
+        try {
+            String userId = userService.getLoggedInUser().getUserId();
+            
+            if (isAdd) {
+                bookmarkService.addBookmark(postId, userId);
+            } else {
+                bookmarkService.removeBookmark(postId, userId);
+            }
+            
+            return "redirect:/";
+        
+        } catch (SQLException e) {
+            e.printStackTrace();
+            String message = URLEncoder.encode("Failed to (un)bookmark the post. Please try again.",
+                    StandardCharsets.UTF_8);
+            return "redirect:/post/" + postId + "?error=" + message;
+        }
     }
 
     @PostMapping("/delete/{postId}")
