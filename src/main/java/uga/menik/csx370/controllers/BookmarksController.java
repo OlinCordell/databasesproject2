@@ -6,42 +6,38 @@ This is a project developed by Dr. Menik to give the students an opportunity to 
 package uga.menik.csx370.controllers;
 
 import java.util.List;
-
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
 import uga.menik.csx370.models.Post;
 import uga.menik.csx370.services.BookmarkService;
+import uga.menik.csx370.services.UserService;
+import uga.menik.csx370.models.User;
 
 @Controller
 @RequestMapping("/bookmarks")
 public class BookmarksController {
 
     private final BookmarkService bookmarkService;
+    private final UserService userService;
 
     public BookmarksController(BookmarkService bookmarkService) {
         this.bookmarkService = bookmarkService;
-    }
+        this.userService = userService;
+    } // BookmarksController
 
     @GetMapping
     public ModelAndView webpage(HttpServletRequest request) {
         ModelAndView mv = new ModelAndView("posts_page");
-
-        int userId = Auth.currentUserId(request); // <- swap this for your project’s auth helper
-
+        String userId = userService.getLoggedInUser().getUserId();
         List<Post> posts = bookmarkService.getBookmarkedPosts(userId);
         mv.addObject("posts", posts);
-
         if (posts.isEmpty()) {
             mv.addObject("isNoContent", true);
-        }
-
-        // Optional: page title/banner
-        mv.addObject("pageTitle", "Bookmarks");
-
+        } // if 
         return mv;
-    }
-}
+    } // webpage
+    
+} // BookmarksController
