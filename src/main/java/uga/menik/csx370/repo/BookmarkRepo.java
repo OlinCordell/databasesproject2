@@ -15,44 +15,44 @@ public class BookmarkRepo {
         this.jdbc = jdbcTemplate;
     } //BookmarkRepo
 
-    public int addBM(int userId, String postId) {
+    public int addBM(String userId, String postId) {
         String sql = "INSERT IGNORE INTO bookmark (userId, postId) VALUES (?, ?)";
         return jdbc.update(sql, userId, postId);
     } // addBM
 
-    public int removeBM(int userId, String postId) {
+    public int removeBM(String userId, String postId) {
         String sql = "DELETE FROM bookmark WHERE userId = ? AND postId = ?";
         return jdbc.update(sql, userId, postId);
     } // removeBM
 
-    public boolean isBM(int userId, String postId) {
+    public boolean isBM(String userId, String postId) {
         String sql = "SELECT 1 FROM bookmark WHERE userId = ? AND postId = ? LIMIT 1";
         List<Integer> rows = jdbc.query(sql, (rs, i) -> rs.getInt(1), userId, postId);
         return !rows.isEmpty();
     } // isBM
 
-    public List<Post> findAllBMs(int userId) {
-        String sql = """
-            SELECT
-                p.postId,
-                p.content,
-                p.postDate,
-                p.user    AS authorId,
-                p.heartsCount,
-                p.commentsCount,
-                u.username,
-                u.firstName,
-                u.lastName
-            FROM bookmark b
-            JOIN post p ON p.postId = b.postId
-            JOIN user u ON u.userId = p.user
-            WHERE b.userId = ?
-            ORDER BY p.postDate DESC
-            """;
-        return jdbc.query(sql, (rs, i) -> mapPost(rs, userId), userId);
-    } // findAllBMs
+public List<Post> findAllBMs(String userId) {
+    String sql =
+        "SELECT " +
+        "  p.postId, " +
+        "  p.content, " +
+        "  p.postDate, " +
+        "  p.user AS authorId, " +
+        "  p.heartsCount, " +
+        "  p.commentsCount, " +
+        "  u.username, " +
+        "  u.firstName, " +
+        "  u.lastName " +
+        "FROM bookmark b, post p, user u " +
+        "WHERE p.postId = b.postId " +
+        "  AND u.userId = p.user " +
+        "  AND b.userId = ? " +
+        "ORDER BY p.postDate DESC";
+    return jdbc.query(sql, (rs, i) -> mapPost(rs, userId), userId);
+} // findAllBMs
+    
 
-    private Post mapPost(ResultSet rs, int currentUserId) throws SQLException {
+    private Post mapPost(ResultSet rs, String currentUserId) throws SQLException {
         Post p = new Post();
         p.setPostId(rs.getString("postId"));
         p.setContent(rs.getString("content"));
@@ -66,4 +66,6 @@ public class BookmarkRepo {
         p.setBookmarked(true);
         return p;
     } // mapPost
+
+    
 } // BookmarkRepo
