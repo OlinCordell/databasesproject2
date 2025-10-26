@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +18,19 @@ import uga.menik.csx370.models.User;
 
 @Service
 public class CommentService {
-    
+
     private final DataSource dataSource;
+    private final UserService userService;
+    private final NotificationService notificationService;
 
     @Autowired
-    public CommentService(DataSource dataSource) {
+    public CommentService(
+            DataSource dataSource,
+            UserService userService,
+            NotificationService notificationService) {
         this.dataSource = dataSource;
+        this.userService = userService;
+        this.notificationService = notificationService;
     }
 
     /**
@@ -88,25 +94,48 @@ public class CommentService {
             WHERE postId = ?
         """;
 
-        try (Connection conn = dataSource.getConnection()) {
-            try (PreparedStatement stmt = conn.prepareStatement(insertCommentSql)) {
-                stmt.setString(1, postId);
-                stmt.setInt(2, Integer.parseInt(userId));
-                stmt.setString(3, content);
-                
-                int rowsAffected = stmt.executeUpdate();
-                
-                if (rowsAffected > 0) {
-                    try (PreparedStatement updateStmt = conn.prepareStatement(updateCommentCountSql)) {
-                        updateStmt.setString(1, postId);
-                        updateStmt.executeUpdate();
-                    }
-                    return true;
-                }
-            }
-        }
+        final String getPostOwnerSql = """
+            SELECT user FROM post WHERE postId = ?
+        """;
 
-        return false;
-    
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement insertStmt = conn.prepareStatement(insertCommentSql);
+            PreparedStatement updateStmt = conn.prepareStatement(updateCommentCountSql);
+            PreparedStatement getOwnerStmt = conn.prepareStatement(getPostOwnerSql)) {
+
+            insertStmt.setString(1, postId);
+            insertStmt.setInt(2, Integer.parseInt(userId));
+            insertStmt.setString(3, content);
+            int rowsAffected = insertStmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                updateStmt.setString(1, postId);
+                updateStmt.executeUpdate();
+
+                getOwnerStmt.setString(1, postId);
+                String postOwnerId = null;
+                try (ResultSet rs = getOwnerStmt.executeQuery()) {
+                    if (rs.next()) {
+                        postOwnerId = rs.getString("user");
+                    }
+                }
+
+                User actor = userService.getLoggedInUser();
+                if (postOwnerId != null && !postOwnerId.equals(actor.getUserId())) {
+                    String message = actor.getFirstName() + " commented on your post: \"" + content + "\"";
+                    notificationService.createNotification(
+                        postOwnerId,
+                        actor.getUserId(),
+                        "COMMENT",
+                        postId,
+                        message
+                    );
+                }
+
+                return true;
+            }
+
+            return false;
+        }
     }
 }

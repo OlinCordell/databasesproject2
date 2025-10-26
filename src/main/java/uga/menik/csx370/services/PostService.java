@@ -33,6 +33,12 @@ public class PostService {
         this.commentService = commentService;
     }
 
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private UserService userService;
+
     public boolean createPost(String userId, String content) throws SQLException {
 
         final String sql = """
@@ -167,6 +173,19 @@ public class PostService {
                 conn.setAutoCommit(true);
             }
         }
+
+        User actor = userService.getLoggedInUser();
+        String postOwnerId = getPostOwnerId(postId);
+        if (postOwnerId != null && !postOwnerId.equals(actor.getUserId())) { 
+            String message = actor.getFirstName() + " liked your post";
+            notificationService.createNotification(
+                postOwnerId,
+                actor.getUserId(),
+                "LIKE",
+                postId,
+                message
+            );
+        }
     }
 
     public void removeHeart(String postId, String userId) throws SQLException {
@@ -201,6 +220,18 @@ public class PostService {
             } finally {
                 conn.setAutoCommit(true);
             }
+        }
+        User actor = userService.getLoggedInUser();
+        String postOwnerId = getPostOwnerId(postId);
+        if (postOwnerId != null && !postOwnerId.equals(actor.getUserId())) { 
+            String message = actor.getFirstName() + " unliked your post";
+            notificationService.createNotification(
+                postOwnerId,
+                actor.getUserId(),
+                "LIKE",
+                postId,
+                message
+            );
         }
     }
 
@@ -307,6 +338,20 @@ public class PostService {
         }
 
         return posts;
+    }
+
+    public String getPostOwnerId(String postId) throws SQLException {
+        final String sql = "SELECT user FROM post WHERE postId = ?";
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, postId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("user");
+                }
+            }
+        }
+        return null;
     }
 
 

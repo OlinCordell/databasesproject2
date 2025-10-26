@@ -41,7 +41,12 @@ public class PeopleService {
     public PeopleService(DataSource dataSource) {
         this.dataSource = dataSource;
     }
-    
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private UserService userService;
+
     /**
      * This function should query and return all users that 
      * are followable. The list should not contain the user 
@@ -106,6 +111,16 @@ public class PeopleService {
             pstmt.setInt(1, Integer.parseInt(followsId));
             pstmt.setInt(2, Integer.parseInt(followedId));
             pstmt.executeUpdate();
+
+            String followerName = userService.getUserById(followsId).getFirstName();
+            String message = followerName + " started following you.";
+            notificationService.createNotification(
+                followedId,
+                followsId,
+                "FOLLOW",
+                null,
+                message
+            );
         }
     }
 
@@ -120,6 +135,16 @@ public class PeopleService {
             stmt.setInt(1, Integer.parseInt(followsId));
             stmt.setInt(2, Integer.parseInt(followedId));
             stmt.executeUpdate();
+
+            String followerName = userService.getUserById(followsId).getFirstName();
+            String message = followerName + " unfollowed you.";
+            notificationService.createNotification(
+                followedId,
+                followsId,
+                "FOLLOW",
+                null,
+                message
+            );
         }
     }
 }

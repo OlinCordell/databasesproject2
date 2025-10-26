@@ -22,11 +22,18 @@ public class BookmarkService {
 
     private final DataSource dataSource;
     private final CommentService commentService;
+    private final UserService userService;
+    private final NotificationService notificationService;
+    private final PostService postService;
 
     @Autowired
-    public BookmarkService(DataSource dataSource, CommentService commentService) {
+    public BookmarkService(DataSource dataSource, CommentService commentService,
+            UserService userService, NotificationService notificationService, PostService postService) {
         this.dataSource = dataSource;
         this.commentService = commentService;
+        this.userService = userService;
+        this.notificationService = notificationService;
+        this.postService = postService;
     } // BookmarkService
 
 
@@ -105,6 +112,22 @@ public class BookmarkService {
             stmt.setString(2, postId);
             stmt.executeUpdate();
         }
+
+        
+        User actor = userService.getLoggedInUser();
+        String postOwnerId = postService.getPostOwnerId(postId);
+
+        if (postOwnerId != null && !postOwnerId.equals(actor.getUserId())) {
+            String message = actor.getFirstName() + " bookmarked your post";
+            notificationService.createNotification(
+                postOwnerId,
+                actor.getUserId(),
+                "BOOKMARK",
+                postId,
+                message
+            );
+        }
+
     }
     public void removeBookmark(String postId, String userId) throws SQLException {
         String sql = "DELETE FROM bookmark WHERE userId = ? AND postId = ?";
@@ -114,6 +137,20 @@ public class BookmarkService {
             stmt.setInt(1, Integer.parseInt(userId));
             stmt.setString(2, postId);
             stmt.executeUpdate();
+        }
+
+        User actor = userService.getLoggedInUser();
+        String postOwnerId = postService.getPostOwnerId(postId);
+
+        if (postOwnerId != null && !postOwnerId.equals(actor.getUserId())) {
+            String message = actor.getFirstName() + " removed a bookmark from your post";
+            notificationService.createNotification(
+                postOwnerId,
+                actor.getUserId(),
+                "BOOKMARK",
+                postId,
+                message
+            );
         }
     }
     

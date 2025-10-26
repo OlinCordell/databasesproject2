@@ -145,4 +145,25 @@ public class UserService {
         }
     }
 
+    public User getUserById(String userId) throws SQLException {
+        final String sql = "SELECT userId, firstName, lastName, profileImagePath FROM user WHERE userId = ?";
+
+        try (Connection conn = dataSource.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, Integer.parseInt(userId));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new User(
+                        rs.getString("userId"),
+                        rs.getString("firstName"),
+                        rs.getString("lastName"),
+                        rs.getString("profileImagePath")
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
 }

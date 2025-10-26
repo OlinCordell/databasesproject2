@@ -1,0 +1,24 @@
+<div class="dropdown notifications-dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="notificationsMenu" data-bs-toggle="dropdown" aria-expanded="false">
+        Notifications {{#unreadCount}}<span class="badge bg-danger">{{unreadCount}}</span>{{/unreadCount}}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsMenu">
+        {{#notifications}}
+            <li class="dropdown-item {{#isRead}}read{{/isRead}}">
+                <a href="/notifications" class="d-flex align-items-center text-decoration-none">
+                    <img src="{{sender.profileImagePath}}" alt="Sender" class="profile-img me-2">
+                    <div>
+                        <strong>{{sender.firstName}} {{sender.lastName}}</strong><br>
+                        <small>{{message}}</small><br>
+                        <small class="text-muted">{{createdAt}}</small>
+                    </div>
+                </a>
+            </li>
+        {{/notifications}}
+        {{^notifications}}
+            <li class="dropdown-item text-muted">No notifications</li>
+        {{/notifications}}
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item text-center" href="/notifications">View All</a></li>
+    </ul>
+</div>

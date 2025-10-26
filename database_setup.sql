@@ -91,3 +91,18 @@ CREATE TABLE IF NOT EXISTS bookmark (
     foreign key (postId) references post(postId) on delete cascade
 );
 
+-- Create the notification table (to track user notifications)
+CREATE TABLE IF NOT EXISTS notification (
+    notificationId INT AUTO_INCREMENT,
+    userId INT NOT NULL,
+    actorId INT NOT NULL,
+    type ENUM('LIKE', 'COMMENT', 'FOLLOW', 'BOOKMARK') NOT NULL,
+    postId VARCHAR(255) DEFAULT NULL,
+    message VARCHAR(255) NOT NULL,
+    isRead BOOLEAN DEFAULT FALSE,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (notificationId),
+    FOREIGN KEY (userId) REFERENCES user(userId) ON DELETE CASCADE,
+    FOREIGN KEY (actorId) REFERENCES user(userId) ON DELETE CASCADE,
+    FOREIGN KEY (postId) REFERENCES post(postId) ON DELETE CASCADE
+);

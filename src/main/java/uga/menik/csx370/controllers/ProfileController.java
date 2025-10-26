@@ -17,7 +17,6 @@ import org.springframework.web.servlet.ModelAndView;
 import uga.menik.csx370.models.ExpandedPost;
 import uga.menik.csx370.services.UserService;
 import uga.menik.csx370.services.PostService;
-import uga.menik.csx370.models.User;
 
 /**
  * Handles /profile URL and its sub URLs.
