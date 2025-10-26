@@ -116,21 +116,5 @@ public class BookmarkService {
             stmt.executeUpdate();
         }
     }
-    /** 
-    @Transactional
-    public boolean ctrlBookmark(String userId, String postId) {
-        boolean already = repo.isBM(userId, postId);
-        if (isBookmarked) {
-            repo.removeBM(userId, postId);
-            return false;
-        } else {
-            repo.addBM(userId, postId);
-            return true;
-        } // if else
-    } // ctrlBookmark
-
-    public boolean isBookmarked(String userId, String postId) {
-        return repo.isBM(userId, postId);
-    } // isBookmarked
-    */
+    
 } // BookmarkService
