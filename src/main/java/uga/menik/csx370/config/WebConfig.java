@@ -37,9 +37,13 @@ public class WebConfig implements WebMvcConfigurer {
         String projectRoot = System.getProperty("user.dir");
         String uploadDir = projectRoot + "/avatars/";
 
-        registry.addResourceHandler("/avatars/**")
+        registry.addResourceHandler("/avatars/uploads/**")
                 .addResourceLocations("file:" + uploadDir);
+
+        registry.addResourceHandler("/avatars/**")
+                .addResourceLocations("classpath:/static/avatars/");
     }
+
 
     /**
      * This is where we register the interceptor to the URL

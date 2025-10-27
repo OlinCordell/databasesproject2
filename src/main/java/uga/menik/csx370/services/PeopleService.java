@@ -53,7 +53,6 @@ public class PeopleService {
      * with id userIdToExclude.
      */
     public List<FollowableUser> getFollowableUsers(String userIdToExclude) throws SQLException {
-        
         // Finds users that are not the currently logged in user.
         final String sql = """
                             select u.userId, u.firstName, u.lastName, u.lastActiveDate, u.profileImagePath,
@@ -78,6 +77,10 @@ public class PeopleService {
                     String firstName = rs.getString("firstName");
                     String lastName = rs.getString("lastName");
                     boolean isFollowed = rs.getBoolean("isFollowed");
+                    String profileImagePath = rs.getString("profileImagePath");
+                    if (profileImagePath == null || profileImagePath.isEmpty()) {
+                        profileImagePath = "/avatars/avatar_1.png";
+                    }
 
                     Timestamp ts = rs.getTimestamp("lastActiveDate");
                     String lastActiveDate = "";
@@ -89,8 +92,7 @@ public class PeopleService {
                     }
 
                     followableUsers.add(new FollowableUser(
-                        userId, firstName, lastName, isFollowed, lastActiveDate));
-                    
+                        userId, firstName, lastName, profileImagePath, isFollowed, lastActiveDate));
                 }
             } 
         } catch (SQLException e) {

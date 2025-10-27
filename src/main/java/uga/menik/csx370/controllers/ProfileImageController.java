@@ -33,12 +33,11 @@ public class ProfileImageController {
     public ModelAndView selectAvatarPage() {
         ModelAndView mv = new ModelAndView("select_avatar");
         mv.addObject("loggedInUser", userService.getLoggedInUser());
-        
+
         List<String> avatars = new ArrayList<>();
         for (int i = 1; i <= 20; i++) { 
             avatars.add("/avatars/avatar_" + i + ".png");
         }
-
         mv.addObject("avatars", avatars);
         return mv;
     }
@@ -62,7 +61,7 @@ public class ProfileImageController {
                 Path targetPath = uploadDir.resolve(filename);
                 uploadedFile.transferTo(targetPath.toFile());
 
-                finalPath = "/avatars/" + filename;
+                finalPath = "/avatars/uploads/" + filename;
             } else if (avatarPath != null && !avatarPath.isEmpty()) {
                 finalPath = avatarPath;
             } else {
@@ -83,6 +82,5 @@ public class ProfileImageController {
 
         return "redirect:/profile";
     }
-
 }
 
