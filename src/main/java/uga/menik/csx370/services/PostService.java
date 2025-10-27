@@ -97,7 +97,6 @@ public class PostService {
                 join follows f on u.userId = f.followedId
                 where f.followsId = ?
                 order by p.postDate desc
-                limit 10;
                 """;
 
         List<Post> posts = new ArrayList<>();
