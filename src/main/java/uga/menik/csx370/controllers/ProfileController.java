@@ -65,7 +65,8 @@ public class ProfileController {
         mv.addObject("pageTitle", "Profile");
 
         try {
-            List<ExpandedPost> posts = postService.getPostsById(userId);
+            String currentUserId = userService.getLoggedInUser().getUserId();
+            List<ExpandedPost> posts = postService.getPostsById(userId, currentUserId);
             if (posts.isEmpty()) {
                 mv.addObject("isNoContent", true);
             } else {

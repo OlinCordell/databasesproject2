@@ -51,7 +51,8 @@ public class BookmarkService {
         "  u.firstName, " +
         "  u.lastName, " +
         "  u.profileImagePath, " +  
-        "  EXISTS(SELECT 1 FROM like_post WHERE postId = p.postId AND userId = ?) as isHearted " +
+        "  EXISTS(SELECT 1 FROM like_post WHERE postId = p.postId AND userId = ?) as isHearted, " +
+        "  EXISTS(SELECT 1 FROM bookmark WHERE postId = p.postId AND userId = ?) as isBookmarked " +
         "FROM bookmark b, post p, user u " +
         "WHERE p.postId = b.postId " +
         "  AND u.userId = p.user " +
@@ -65,7 +66,7 @@ public class BookmarkService {
             
             pstmt.setInt(1, Integer.parseInt(userId));
             pstmt.setInt(2, Integer.parseInt(userId)); 
-            
+            pstmt.setInt(3, Integer.parseInt(userId));
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     User user = new User(
@@ -87,8 +88,8 @@ public class BookmarkService {
                         user,
                         rs.getInt("heartsCount"),
                         rs.getInt("commentsCount"),
-                        rs.getBoolean("isHearted"),
-                        true,
+                        rs.getInt("isHearted") == 1,
+                        rs.getInt("isBookmarked") == 1,
                         comments
                     );
 
