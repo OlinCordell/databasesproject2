@@ -38,7 +38,8 @@ public class WebConfig implements WebMvcConfigurer {
         String uploadDir = projectRoot + "/avatars/";
 
         registry.addResourceHandler("/avatars/**")
-                .addResourceLocations("file:" + uploadDir);
+                .addResourceLocations("file:" + uploadDir,
+                                     "classpath:/static/avatars/);
     }
 
     /**
