@@ -140,3 +140,18 @@ select p.postId, p.content, p.postDate, p.user, p.heartsCount, p.commentsCount,
             join user u on p.user = u.userId
             where p.user = ?
             order by p.postDate desc
+
+-- Retrieve notifications by their id    
+SELECT n.notificationId, n.userId, n.actorId, n.type, n.postId, n.message, n.isRead, n.createdAt,
+                u.userId AS senderId, u.firstName, u.lastName, u.profileImagePath
+            FROM notification n
+            JOIN user u ON n.actorId = u.userId
+            WHERE n.userId = ?
+            ORDER BY n.createdAt DESC
+
+-- Deletes all notifications for a user
+DELETE FROM notification
+            WHERE userId = ?
+
+-- Deletes a specific notification for a user
+DELETE FROM notification WHERE notificationId = ? AND userId = ?
