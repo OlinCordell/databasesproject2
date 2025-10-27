@@ -78,7 +78,7 @@ public class PeopleService {
                     String firstName = rs.getString("firstName");
                     String lastName = rs.getString("lastName");
                     boolean isFollowed = rs.getBoolean("isFollowed");
-
+                    String profileImagePath = rs.getString("profileImagePath");
                     Timestamp ts = rs.getTimestamp("lastActiveDate");
                     String lastActiveDate = "";
                     if (ts != null) {
@@ -89,7 +89,7 @@ public class PeopleService {
                     }
 
                     followableUsers.add(new FollowableUser(
-                        userId, firstName, lastName, isFollowed, lastActiveDate));
+                        userId, firstName, lastName, profileImagePath, isFollowed, lastActiveDate));
                     
                 }
             } 
