@@ -105,7 +105,7 @@ public class BookmarkService {
 
 
     public void addBookmark(String postId, String userId) throws SQLException {
-        String sql = "INSERT IGNORE INTO bookmark (userId, postId) VALUES (?, ?)";
+        String sql = "INSERT INTO bookmark (userId, postId) VALUES (?, ?)";
     
         try (Connection conn = dataSource.getConnection();
          PreparedStatement stmt = conn.prepareStatement(sql)) {
