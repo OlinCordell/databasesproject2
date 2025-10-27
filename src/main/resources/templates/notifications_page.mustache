@@ -38,7 +38,7 @@
             </div>
         {{/notifications}}
 
-        <!-- ✅ Single mark-all form -->
+        <!-- Single mark-all form -->
         {{#notifications.0}} <!-- Only render if there are notifications -->
             <form action="/notifications/markAllRead" method="post" class="mt-3">
                 <button type="submit" class="btn btn-primary">Mark All as Read</button>
