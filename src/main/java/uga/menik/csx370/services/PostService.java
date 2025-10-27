@@ -88,8 +88,10 @@ public class PostService {
         
         final String sql = """
                 select p.postId, p.content, p.postDate, p.user,
-                    p.heartsCount, p.commentsCount, p.isHearted, p.isBookmarked, 
-                    u.userId, u.firstName, u.lastName, u.profileImagePath
+                    p.heartsCount, p.commentsCount, 
+                    u.userId, u.firstName, u.lastName, u.profileImagePath,
+                    EXISTS(SELECT 1 FROM like_post WHERE postId = p.postId AND userId = ?) as isHearted,
+                    EXISTS(SELECT 1 FROM bookmark WHERE postId = p.postId AND userId = ?) as isBookmarked
                 from post p
                 join user u on p.user = u.userId
                 join follows f on u.userId = f.followedId
@@ -104,6 +106,8 @@ public class PostService {
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, loggedInUserId);
+            pstmt.setString(2, loggedInUserId);
+            pstmt.setString(3, loggedInUserId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -128,8 +132,8 @@ public class PostService {
                         user,
                         rs.getInt("heartsCount"),
                         rs.getInt("commentsCount"),
-                        rs.getBoolean("isHearted"),
-                        rs.getBoolean("isBookmarked")
+                        rs.getInt("isHearted") == 1,
+                        rs.getInt("isBookmarked") == 1
                     );
 
                     posts.add(post);
@@ -237,13 +241,16 @@ public class PostService {
 
     public ExpandedPost getPostById(String postId, String currentUserId) throws SQLException {
         final String sql = """
-                select p.*, u.*,
-                   EXISTS(SELECT 1 FROM like_post WHERE postId = p.postId AND userId = ?) as isHearted,
-                   EXISTS(SELECT 1 FROM bookmark WHERE postId = p.postId AND userId = ?) as isBookmarked
+                select p.postId, p.content, p.postDate, p.user, p.heartsCount, p.commentsCount,
+                    u.userId, u.firstName, u.lastName, u.profileImagePath,
+                    EXISTS(SELECT 1 FROM like_post WHERE postId = p.postId AND userId = ?) as isHearted,
+                    EXISTS(SELECT 1 FROM bookmark WHERE postId = p.postId AND userId = ?) as isBookmarked
                 from post p
                 join user u on p.user = u.userId
                 where p.postId = ?
                 """;
+
+    
         try (Connection conn = dataSource.getConnection();
          PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -261,7 +268,7 @@ public class PostService {
                         rs.getString("profileImagePath")
                     );
 
-                    List<Comment> comments = commentService.getCommentsByPost(postId);
+                    List<Comment> comments = commentService.getCommentsByPost(rs.getString("postId"));
 
                     Timestamp ts = rs.getTimestamp("postDate");
                     String formattedDate = "";
@@ -277,8 +284,8 @@ public class PostService {
                         postUser,
                         rs.getInt("heartsCount"),
                         rs.getInt("commentsCount"),
-                        rs.getBoolean("isHearted"),
-                        rs.getBoolean("isBookmarked"),
+                        rs.getInt("isHearted") == 1,
+                        rs.getInt("isBookmarked") == 1,
                         comments
                     );
                 } else {
@@ -288,9 +295,12 @@ public class PostService {
         }
     }
 
-    public List<ExpandedPost> getPostsById(String userId) throws SQLException {
+    public List<ExpandedPost> getPostsById(String userId, String currentUserId) throws SQLException {
         final String sql = """
-            select *
+            select p.postId, p.content, p.postDate, p.user, p.heartsCount, p.commentsCount,
+                u.userId, u.firstName, u.lastName, u.profileImagePath,   
+                EXISTS(SELECT 1 FROM like_post WHERE postId = p.postId AND userId = ?) as isHearted,
+                EXISTS(SELECT 1 FROM bookmark WHERE postId = p.postId AND userId = ?) as isBookmarked
             from post p
             join user u on p.user = u.userId
             where p.user = ?
@@ -302,7 +312,9 @@ public class PostService {
         try (Connection conn = dataSource.getConnection();
          PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, userId);
+            pstmt.setInt(1, Integer.parseInt(currentUserId));
+            pstmt.setInt(2, Integer.parseInt(currentUserId));
+            pstmt.setInt(3, Integer.parseInt(userId));
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -329,8 +341,8 @@ public class PostService {
                         postUser,
                         rs.getInt("heartsCount"),
                         rs.getInt("commentsCount"),
-                        rs.getBoolean("isHearted"),
-                        rs.getBoolean("isBookmarked"),
+                        rs.getInt("isHearted") == 1,
+                        rs.getInt("isBookmarked") == 1,
                         comments
                     ));
                 }

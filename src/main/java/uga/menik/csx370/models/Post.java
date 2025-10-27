@@ -80,7 +80,7 @@ public class Post extends BasicPost {
      *
      * @return true if the post is hearted, false otherwise
      */
-    public boolean getHearted() {
+    public boolean isHearted() {
         return isHearted;
     }
 
