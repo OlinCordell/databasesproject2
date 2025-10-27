@@ -39,7 +39,7 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/avatars/**")
                 .addResourceLocations("file:" + uploadDir,
-                                     "classpath:/static/avatars/);
+                                     "classpath:/static/avatars/");
     }
 
     /**
