@@ -18,6 +18,8 @@ public class ExpandedPost extends Post {
      */
     private final List<Comment> comments;
     private boolean isProfilePage;
+    private String currentUserId;
+
 
     /**
      * Constructs an ExpandedPost with specified details including a list of comments.
@@ -52,5 +54,13 @@ public class ExpandedPost extends Post {
 
     public void setProfilePage(boolean isProfilePage) {
         this.isProfilePage = isProfilePage;
+    }
+
+    public boolean isOwnProfile() {
+        return currentUserId != null && currentUserId.equals(getUser().getUserId());
+    }
+
+    public void setCurrentUserId(String currentUserId) {
+        this.currentUserId = currentUserId;
     }
 }

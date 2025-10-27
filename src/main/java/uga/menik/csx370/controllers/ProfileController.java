@@ -72,6 +72,7 @@ public class ProfileController {
             } else {
                 for (ExpandedPost post : posts) {
                     post.setProfilePage(true);
+                    post.setCurrentUserId(currentUserId);
                 }
                 mv.addObject("posts", posts);
             }
