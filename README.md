@@ -15,3 +15,15 @@ Olin Cordell (okc05539)
   - Service: Services/ProfileImageService.java
   - SQL: database operations with profileImagePath in user field.
   - File Handling: uses Java's Path/Files API + MultipartFile
+
+
+Sean McGrath (smm94426)
+-> Implemented Comments Logic and Bookmarks fixes.
+
+-> Implemented a remove post feature. There is a button on the profile screen which users
+can use to remove their own posts.
+  - UI: resources\templates\fragments\post.mustache
+  - Controller: Controllers/PostController.java - deletePost() method.
+  - Service: Services/PostService.java - deletePost() method.
+  - SQL: Delete sql query only when postId and user match.
+  - Model: models/ExpandedPost.java - IsOwnProfile() method, delete button only shows on your own profile.
