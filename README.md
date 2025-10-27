@@ -27,3 +27,20 @@ can use to remove their own posts.
   - Service: Services/PostService.java - deletePost() method.
   - SQL: Delete sql query only when postId and user match.
   - Model: models/ExpandedPost.java - IsOwnProfile() method, delete button only shows on your own profile.
+
+
+Pushya Damania (phd87389)
+-> Created ER models and recorded video demonstration
+
+-> Designed and implemented notification system that alerts the user when another user follows,
+comments, bookmarks, or likes their content. It is non-trivial as it integrates front-end UI, 
+controller logic, and service-layer database operations. To access the feature click on the
+notifications tab. After clicking the tab the user will see all the notifications they have
+and they can choose to delete specific notifications or delete all of them.
+ - UI: src/main/resources/templates/notifications_page.mustache
+ -    UI: src/main/resources/templates/fragments/notifications_dropdown.mustache
+ - Controller: src/main/java/uga/menik/csx370/controllers/NotificationController.java
+ - Service: src/main/java/uga/menik/csx370/services/NotificationService.java
+ -    Modified: src/main/java/uga/menik/csx370/services/UserService.java - getUserById() method
+ -    Modified: Post, people, bookmark, comment services to call + create a notification on action
+ - SQL: Add database operations related to creating and deleting notifications
