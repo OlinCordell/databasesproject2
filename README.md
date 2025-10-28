@@ -48,6 +48,9 @@ and they can choose to delete specific notifications or delete all of them.
 
 Meghana Madduri (vm84607)
 -> Created hashtag, hashtag_post, like_post, and bookmark tables in databse_setup.sql.  
+Bookmark feature 
+- Controller: src/main/java/uga/menik/csx370/controllers/PeopleController.java
+- Service: src/main/java/uga/menik/csx370/service/BookmarkService.java 
 
 Shafat Hasan (smh18904)
 -> Implemented Logic work and people page and follow/unfollow feature with Last Active display also worked on some listing issues.
