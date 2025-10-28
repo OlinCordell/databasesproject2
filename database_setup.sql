@@ -117,18 +117,18 @@ SAMPLE DATA INSERTIONS
 =======================
 
 insert into user(userId,username,password,firstName,lastName,lastActiveDate,profileImagePath) values
-(11, 'harryp',  'pw_1','Harry','Potter','2025-03-07 22:54:00'),
-(22, 'hermioneg', 'pw_2','Hermione','Granger','2025-03-08 09:15:00'),
-(33, 'ronw',     'pw_3',    'Ron',    'Weasley', '2025-03-08 11:30:00'),
-(44, 'dracom', 'pw_4',    'Draco',  'Malfoy',  '2025-03-06 18:20:00'),
-(55, 'lunal', 'pw_5',      'Luna',   'Lovegood','2025-03-05 13:05:00');
+(1, 'harryp',  'pw_1','Harry','Potter','2025-03-07 22:54:00'),
+(2, 'hermioneg', 'pw_2','Hermione','Granger','2025-03-08 09:15:00'),
+(3, 'ronw',     'pw_3',    'Ron',    'Weasley', '2025-03-08 11:30:00'),
+(4, 'dracom', 'pw_4',    'Draco',  'Malfoy',  '2025-03-06 18:20:00'),
+(5, 'lunal', 'pw_5',      'Luna',   'Lovegood','2025-03-05 13:05:00');
 
 insert into post(postId,content, postDate, user, heartsCount,commentsCount,isHearted,isBookmarked) values
-('p001','FDOC!! #gryffindor', '2025-03-07 22:54:00', 11, 2, 1, false, false),
-('p002', 'Need to study, so behind! #magic', '2025-03-08 08:05:00', 22, 1, 2, false, false),
-('p003', 'I lost my wand again #hufflepuff',     '2025-03-08 10:45:00', 33, 2, 1, false, false),
-('p004', 'Beat that Potter! #slytherin',   '2025-03-06 17:10:00', 44, 1, 1, false, false),
-('p005', 'Magic in the air #ravenclaw', '2025-03-05 12:00:00', 55, 0, 0, false, false);
+('p001','FDOC!! #gryffindor', '2025-03-07 22:54:00', 1, 2, 1, false, false),
+('p002', 'Need to study, so behind! #magic','2025-03-08 08:05:00', 2, 1, 2, false, false),
+('p003', 'I lost my wand again #hufflepuff','2025-03-08 10:45:00', 3, 2, 1, false, false),
+('p004', 'Beat that Potter! #slytherin','2025-03-06 17:10:00', 4, 1, 1, false, false),
+('p005', 'Magic in the air #ravenclaw','2025-03-05 12:00:00',5, 0, 0, false, false);
 
 insert into follows(followsId,followedId) values
 (1, 2), -- harry to hermione
@@ -152,20 +152,25 @@ insert into hashtag_post (postId, hashtagId) values
 ('p005', 4);
 
 insert into like_post(userId,postId) values
-(22, 'p001'),
-(33, 'p001'),
-(11, 'p002'),
-(11, 'p003'),
-(22, 'p005');
+(2, 'p001'),
+(3, 'p001'),
+(1, 'p002'),
+(1, 'p003'),
+(2, 'p005');
 
 insert into bookmark(userId,postId,createdAt) values
-(11, 'p005', '2025-03-08 08:30:00'),
-(22, 'p004', '2025-03-08 08:30:00'),
-(33, 'p003', '2025-03-08 08:30:00'),
-(44, 'p002', '2025-03-08 08:30:00'),
-(55, 'p001', '2025-03-08 08:30:00');
+(1, 'p005', '2025-03-08 08:30:00'),
+(2, 'p004', '2025-03-08 08:30:00'),
+(3, 'p003', '2025-03-08 08:30:00'),
+(4, 'p002', '2025-03-08 08:30:00'),
+(5, 'p001', '2025-03-08 08:30:00');
 
-
+insert into notification(notificationId,userId,actorId,type, postId,message, isRead,createdAt) values
+(1, 1, 2, 'LIKE','p001','Hermione liked your post.',false, '2025-03-08 08:21:00'),
+(2, 1, 3, 'LIKE','p001','Ron liked your post.',false, '2025-03-08 08:21:00'),
+(3,2, 1, 'COMMENT','p002','Harry commented on your post.',false, '2025-03-08 08:21:00'),
+(4,5, 4, 'COMMENT','p004','Luna commented on you post.',false, '2025-03-08 08:21:00'),
+(5,5, 4, 'BOOKMARK','p005','Draco bookmarked your post.',false, '2025-03-08 08:21:00');
 
 
 
