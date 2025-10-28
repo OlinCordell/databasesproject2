@@ -169,7 +169,7 @@ insert into notification(notificationId,userId,actorId,type, postId,message, isR
 (1, 1, 2, 'LIKE','p001','Hermione liked your post.',false, '2025-03-08 08:21:00'),
 (2, 1, 3, 'LIKE','p001','Ron liked your post.',false, '2025-03-08 08:21:00'),
 (3,2, 1, 'COMMENT','p002','Harry commented on your post.',false, '2025-03-08 08:21:00'),
-(4,5, 4, 'COMMENT','p004','Luna commented on you post.',false, '2025-03-08 08:21:00'),
+(4,5, 4, 'COMMENT','p004','Draco commented on you post.',false, '2025-03-08 08:21:00'),
 (5,5, 4, 'BOOKMARK','p005','Draco bookmarked your post.',false, '2025-03-08 08:21:00');
 
 
