@@ -1,7 +1,7 @@
 
-============
+-----------------------
   DB SETUP
-============
+----------------------
 
 -- Create the database.
 create database if not exists csx370_mb_platform;
@@ -112,9 +112,9 @@ CREATE TABLE IF NOT EXISTS notification (
     FOREIGN KEY (postId) REFERENCES post(postId) ON DELETE CASCADE
 );
 
-=======================
+-------------------------
 SAMPLE DATA INSERTIONS 
-=======================
+-------------------------
 
 insert into user(userId,username,password,firstName,lastName,lastActiveDate,profileImagePath) values
 (1, 'harryp',  'pw_1','Harry','Potter','2025-03-07 22:54:00'),
