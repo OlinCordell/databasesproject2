@@ -156,12 +156,21 @@ insert into like_post(userId,postId) values
 (22, 'p005');
 
 insert into bookmark(userId,postId,createdAt) values
+
 (11, 'p005', '2025-03-08 08:30:00'),
 (22, 'p004', '2025-03-08 08:30:00'),
 (33, 'p003', '2025-03-08 08:30:00'),
 (44, 'p002', '2025-03-08 08:30:00'),
 (55, 'p001', '2025-03-08 08:30:00');
 
+
+
+insert into notification(notificationId,userId,actorId,type, postId,message, isRead,createdAt) values
+(1, 1, 2, 'LIKE','p001','Hermione liked your post.',false, '2025-03-08 08:21:00'),
+(2, 1, 3, 'LIKE','p001','Ron liked your post.',false, '2025-03-08 08:21:00'),
+(3,2, 1, 'COMMENT','p002','Harry commented on your post.',false, '2025-03-08 08:21:00'),
+(4,5, 4, 'COMMENT','p004','Draco commented on you post.',false, '2025-03-08 08:21:00'),
+(5,5, 4, 'BOOKMARK','p005','Draco bookmarked your post.',false, '2025-03-08 08:21:00');
 
 
 
