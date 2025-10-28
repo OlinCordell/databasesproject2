@@ -166,11 +166,11 @@ insert into bookmark(userId,postId,createdAt) values
 
 
 insert into notification(notificationId,userId,actorId,type, postId,message, isRead,createdAt) values
-(1, 1, 2, 'LIKE','p001','Hermione liked your post.',false, '2025-03-08 08:21:00'),
-(2, 1, 3, 'LIKE','p001','Ron liked your post.',false, '2025-03-08 08:21:00'),
-(3,2, 1, 'COMMENT','p002','Harry commented on your post.',false, '2025-03-08 08:21:00'),
-(4,5, 4, 'COMMENT','p004','Draco commented on you post.',false, '2025-03-08 08:21:00'),
-(5,5, 4, 'BOOKMARK','p005','Draco bookmarked your post.',false, '2025-03-08 08:21:00');
+(1, 11, 22, 'LIKE','p001','Hermione liked your post.',false, '2025-03-08 08:21:00'),
+(2, 11, 33, 'LIKE','p001','Ron liked your post.',false, '2025-03-08 08:21:00'),
+(3, 22, 11, 'COMMENT','p002','Harry commented on your post.',false, '2025-03-08 08:21:00'),
+(4, 55, 44, 'COMMENT','p005','Draco commented on your post.',false, '2025-03-08 08:21:00'),
+(5, 55, 44, 'BOOKMARK','p005','Draco bookmarked your post.',false, '2025-03-08 08:21:00');
 
 
 
