@@ -50,7 +50,8 @@ Meghana Madduri (vm84607)
 -> Created hashtag, hashtag_post, like_post, and bookmark tables in databse_setup.sql.  
 Bookmark feature 
 - Controller: src/main/java/uga/menik/csx370/controllers/PeopleController.java
-- Service: src/main/java/uga/menik/csx370/service/BookmarkService.java 
+- Service: src/main/java/uga/menik/csx370/service/BookmarkService.java
+- Data insertions for all tables in database_setup.sql
 
 Shafat Hasan (smh18904)
 -> Implemented Logic work and people page and follow/unfollow feature with Last Active display also worked on some listing issues.
