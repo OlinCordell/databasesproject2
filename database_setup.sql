@@ -1,3 +1,8 @@
+
+============
+  DB SETUP
+============
+
 -- Create the database.
 create database if not exists csx370_mb_platform;
 
@@ -106,3 +111,63 @@ CREATE TABLE IF NOT EXISTS notification (
     FOREIGN KEY (actorId) REFERENCES user(userId) ON DELETE CASCADE,
     FOREIGN KEY (postId) REFERENCES post(postId) ON DELETE CASCADE
 );
+
+=======================
+SAMPLE DATA INSERTIONS 
+=======================
+
+insert into user(userId,username,password,firstName,lastName,lastActiveDate,profileImagePath) values
+(11, 'harryp',  'pw_1','Harry','Potter','2025-03-07 22:54:00'),
+(22, 'hermioneg', 'pw_2','Hermione','Granger','2025-03-08 09:15:00'),
+(33, 'ronw',     'pw_3',    'Ron',    'Weasley', '2025-03-08 11:30:00'),
+(44, 'dracom', 'pw_4',    'Draco',  'Malfoy',  '2025-03-06 18:20:00'),
+(55, 'lunal', 'pw_5',      'Luna',   'Lovegood','2025-03-05 13:05:00');
+
+insert into post(postId,content, postDate, user, heartsCount,commentsCount,isHearted,isBookmarked) values
+('p001','FDOC!! #gryffindor', '2025-03-07 22:54:00', 11, 2, 1, false, false),
+('p002', 'Need to study, so behind! #magic', '2025-03-08 08:05:00', 22, 1, 2, false, false),
+('p003', 'I lost my wand again #hufflepuff',     '2025-03-08 10:45:00', 33, 2, 1, false, false),
+('p004', 'Beat that Potter! #slytherin',   '2025-03-06 17:10:00', 44, 1, 1, false, false),
+('p005', 'Magic in the air #ravenclaw', '2025-03-05 12:00:00', 55, 0, 0, false, false);
+
+insert into follows(followsId,followedId) values
+(1, 2), -- harry to hermione
+(1, 3), -- harry to ron
+(2, 1), -- hermione to harry
+(3, 4), -- ron to draco
+(4, 5); -- draco to luna 
+
+insert into hashtag(hashtagId,tag) values
+(1, 'gryffindor'),
+(2, 'slytherin'),
+(3, 'hufflepuff'),
+(4, 'ravenclaw'),
+(5, 'magic');
+
+insert into hashtag_post (postId, hashtagId) values
+('p001', 1),
+('p002', 5),
+('p003', 3),
+('p004', 2),
+('p005', 4);
+
+insert into like_post(userId,postId) values
+(22, 'p001'),
+(33, 'p001'),
+(11, 'p002'),
+(11, 'p003'),
+(22, 'p005');
+
+insert into bookmark(userId,postId,createdAt) values
+(11, 'p005', '2025-03-08 08:30:00'),
+(22, 'p004', '2025-03-08 08:30:00'),
+(33, 'p003', '2025-03-08 08:30:00'),
+(44, 'p002', '2025-03-08 08:30:00'),
+(55, 'p001', '2025-03-08 08:30:00');
+
+
+
+
+
+
+
