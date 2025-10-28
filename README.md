@@ -46,6 +46,9 @@ and they can choose to delete specific notifications or delete all of them.
  - SQL: Add database operations related to creating and deleting notifications
 
 
+Meghana Madduri (vm84607)
+-> Created hashtag, hashtag_post, like_post, and bookmark tables in databse_setup.sql.  
+
 Shafat Hasan (smh18904)
 -> Implemented Logic work and people page and follow/unfollow feature with Last Active display also worked on some listing issues.
 Debugging and code integration. 
