@@ -44,3 +44,13 @@ and they can choose to delete specific notifications or delete all of them.
  -    Modified: src/main/java/uga/menik/csx370/services/UserService.java - getUserById() method
  -    Modified: Post, people, bookmark, comment services to call + create a notification on action
  - SQL: Add database operations related to creating and deleting notifications
+
+
+Shafat Hasan (smh18904)
+-> Implemented Logic work and people page and follow/unfollow feature with Last Active display also worked on some listing issues.
+Debugging and code integration. 
+
+- UI: resources/templates/people_page.mustache; resources/templates/fragments/followable_user.mustache
+- Controller: src/main/java/uga/menik/csx370/controllers/PeopleController.java
+- Service: src/main/java/uga/menik/csx370/services/PeopleService.java
+- SQL: SELECT with LEFT JOIN on follows; INSERT/DELETE for follow/unfollow; uses user.lastActiveDate for display
